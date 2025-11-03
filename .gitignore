@@ -1,0 +1,11 @@
+# build artifacts
+teleport
+*.o
+*.out
+
+# editor backups
+*~
+*.swp
+
+# system files
+.DS_Store
