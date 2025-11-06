@@ -1,11 +1,17 @@
-# build artifacts
-teleport
+# Build artifacts
 *.o
-*.out
+*.obj
+*.log
+*.tmp
+*.bak
+/build
+/dist
 
-# editor backups
-*~
-*.swp
-
-# system files
+# OS files
 .DS_Store
+Thumbs.db
+
+# Editor junk
+.vscode/
+.idea/
+*.swp
