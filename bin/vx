@@ -1,0 +1,12 @@
+#!/bin/sh
+CMD="$1"; shift 2>/dev/null || true
+
+case "$CMD" in
+  status)   git -c color.ui=always status ;;
+  log)      git --no-pager log --oneline -n "${1:-10}" ;;
+  version)  echo "Teleport VX 2.3 • Neon Expansion";;
+  boot)     [ -f boot/teleport.sh ] && sh boot/teleport.sh || echo "no boot script";;
+  config)   [ -f config/default.conf ] && cat config/default.conf || echo "no config";;
+  doctor)   sh modules/doctor.sh ;;
+  *) echo "Teleport VX • commands: status | log [N] | version | boot | config | doctor";;
+esac
