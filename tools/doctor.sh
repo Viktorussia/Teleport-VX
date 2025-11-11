@@ -55,3 +55,4 @@ fi
 
 echo
 echo "System check complete. Neon Aurora ready."
+LOCALTIME=$(TZ=GMT-10 date "+%Y-%m-%d %H:%M:%S"); echo "[OK] Local Time (Vladivostok): $LOCALTIME"

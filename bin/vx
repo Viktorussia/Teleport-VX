@@ -6,6 +6,7 @@ ROOT="$HOME/teleport-vx"
 case "$1" in
   status)
     echo "Teleport VX — Neon Aurora"
+    LOCALTIME=$(TZ=GMT-10 date "+%Y-%m-%d %H:%M:%S"); echo "[OK] Local Time (Vladivostok): $LOCALTIME"
     printf "[OK] Kernel: active (ash/busybox)\n"
     awk '/MemTotal:/{t=$2}/MemAvailable:/{a=$2}END{if(t>0){u=t-a;p=int(u*100/t);printf("[OK] Memory: %d%% used (%d / %d kB)\n",p,u,t)}else{print "[WARN] Memory info unavailable"}}' /proc/meminfo
     LOAD=$(uptime | awk -F'load average: ' '{print $2}' | cut -d, -f1-3)
