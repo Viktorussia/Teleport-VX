@@ -1,12 +1,12 @@
-#!/bin/sh
-CMD="$1"; shift 2>/dev/null || true
+#!/bin/ash
+BASE="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
+SYS="$BASE/core/system.sh"
 
-case "$CMD" in
-  status)   git -c color.ui=always status ;;
-  log)      git --no-pager log --oneline -n "${1:-10}" ;;
-  version)  echo "Teleport VX 2.3 • Neon Expansion";;
-  boot)     [ -f boot/teleport.sh ] && sh boot/teleport.sh || echo "no boot script";;
-  config)   [ -f config/default.conf ] && cat config/default.conf || echo "no config";;
-  doctor)   sh modules/doctor.sh ;;
-  *) echo "Teleport VX • commands: status | log [N] | version | boot | config | doctor";;
+case "$1" in
+  status)   sh "$SYS" status ;;
+  version)  sh "$SYS" version ;;
+  doctor)   sh "$BASE/tools/doctor.sh" 2>/dev/null || echo "doctor not installed" ;;
+  update)   (cd "$BASE" && git pull --rebase) ;;
+  sync)     (cd "$BASE" && git add . && git commit -m "AutoSync: $(date +%Y-%m-%d_%H:%M:%S)" && git push) ;;
+  *) echo "vx {status|version|doctor|update|sync}"; exit 1 ;;
 esac
