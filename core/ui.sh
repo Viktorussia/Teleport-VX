@@ -68,3 +68,74 @@ progress() {
   printf "\r[%.*s%.*s] %3d%% %s" "$filled" "########################################" "$empty" "                                        " "$pct" "$msg"
   [ "$cur" -ge "$total" ] && printf "\n"
 }
+# === Teleport VX :: Pulse Monitor ===
+
+pulse_monitor() {
+  echo
+  echo "CPU Pulse Monitor :: Teleport VX"
+  echo "Press Ctrl+C to stop"
+  echo "---------------------------------"
+
+  while true; do
+    # CPU load (avg over 1m)
+    load=$(awk '{print $1}' /proc/loadavg 2>/dev/null)
+    [ -z "$load" ] && load="0.0"
+
+    # Цвета по уровню загрузки
+    if (( $(echo "$load < 0.7" | bc -l) )); then
+      color="\033[32m"   # зелёный
+    elif (( $(echo "$load < 1.5" | bc -l) )); then
+      color="\033[33m"   # жёлтый
+    else
+      color="\033[31m"   # красный
+    fi
+
+    # Анимация точки (пульса)
+    frame=$(( (frame + 1) % 4 ))
+    case $frame in
+      0) sym="." ;;
+      1) sym="o" ;;
+      2) sym="O" ;;
+      3) sym="o" ;;
+    esac
+
+    # Очистка строки и вывод
+    printf "\r${color}♥ CPU: %s | Pulse: %s${C_RESET}" "$load" "$sym"
+    sleep 0.3
+  done
+}
+# === Teleport VX :: Pulse Monitor (BusyBox-safe) ===
+
+pulse_monitor() {
+  echo
+  echo "CPU Pulse Monitor :: Teleport VX"
+  echo "Press Ctrl+C to stop"
+  echo "---------------------------------"
+
+  frame=0
+  while true; do
+    load=$(awk '{print $1}' /proc/loadavg 2>/dev/null)
+    [ -z "$load" ] && load="0.0"
+
+    # Проверка уровня нагрузки без (( ))
+    if awk "BEGIN {exit !($load < 0.7)}"; then
+      color="\033[32m"  # зелёный
+    elif awk "BEGIN {exit !($load < 1.5)}"; then
+      color="\033[33m"  # жёлтый
+    else
+      color="\033[31m"  # красный
+    fi
+
+    # Анимация точек
+    frame=$(( (frame + 1) % 4 ))
+    case "$frame" in
+      0) sym="." ;;
+      1) sym="o" ;;
+      2) sym="O" ;;
+      3) sym="o" ;;
+    esac
+
+    printf "\r${color}♥ CPU: %s | Pulse: %s${C_RESET}" "$load" "$sym"
+    sleep 0.3
+  done
+}
