@@ -3,60 +3,58 @@ set -e
 
 ROOT="$HOME/teleport-vx"
 
+# UI Menu launcher
+if [ "$1" = "menu" ] || [ "$1" = "ui" ]; then
+    sh "$ROOT/ui/menu.sh"
+    exit 0
+fi
+
 case "$1" in
-  status)
-    echo "Teleport VX — Neon Aurora"
-    LOCALTIME=$(TZ=GMT-10 date "+%Y-%m-%d %H:%M:%S"); echo "[OK] Local Time (Vladivostok): $LOCALTIME"
-    printf "[OK] Kernel: active (ash/busybox)\n"
-    awk '/MemTotal:/{t=$2}/MemAvailable:/{a=$2}END{if(t>0){u=t-a;p=int(u*100/t);printf("[OK] Memory: %d%% used (%d / %d kB)\n",p,u,t)}else{print "[WARN] Memory info unavailable"}}' /proc/meminfo
-    LOAD=$(uptime | awk -F'load average: ' '{print $2}' | cut -d, -f1-3)
-    printf "[OK] CPU Load: %s\n" "$LOAD"
-    UP=$(uptime | awk -F'up ' '{print $2}' | awk -F',' '{print $1}')
-    printf "[OK] Uptime: %s\n" "$UP"
-    ;;
+    status)
+        echo "Teleport VX b
+ Neon Aurora"
+        LOCALTIME=$(TZ=GMT-10 date "+%Y-%m-%d %H:%M:%S")
+        printf "[OK] Local Time (Vladivostok): %s\n" "$LOCALTIME"
+        printf "[OK] Kernel: active (ash/busybox)\n"
 
-  version)
-    . "$ROOT/config/system.cfg"
-    echo "$VX_VERSION ($VX_CODENAME) — $VX_DATE"
-    ;;
+        MEM_TOTAL=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+        MEM_AVAIL=$(grep MemAvailable /proc/meminfo | awk '{print $2}')
+        MEM_USED=$((MEM_TOTAL - MEM_AVAIL))
+        printf "[OK] Memory: %s used / %s kB\n" "$MEM_USED" "$MEM_TOTAL"
 
-  doctor)
-    "$ROOT/tools/doctor.sh"
-    ;;
+        LOAD=$(uptime | awk -F'load average: ' '{print $2}')
+        printf "[OK] CPU Load: %s\n" "$LOAD"
 
-  net)
-    shift
-    "$ROOT/core/net.sh" "$@"
-    ;;
+        UP=$(uptime | awk -F'up ' '{print $2}' | awk -F',' '{print $1}')
+        printf "[OK] Uptime: %s\n" "$UP"
+        ;;
 
-  ui)
-    "$ROOT/ui/menu.sh"
-    ;;
+    version)
+        . "$ROOT/config/system.cfg"
+        echo "$VX_VERSION ($VX_CODENAME) b
+ $VX_BUILD_DATE"
+        ;;
 
-  ai)
-    "$ROOT/ai/assistant.sh"
-    ;;
+    doctor)
+        sh "$ROOT/tools/doctor.sh"
+        ;;
 
-  update)
-    (cd "$ROOT" && git pull --rebase)
-    ;;
+    net)
+        shift
+        sh "$ROOT/core/net.sh" "$@"
+        ;;
 
-  sync)
-    (cd "$ROOT" && git add . && git commit -m "AutoSync: $(date +%Y-%m-%d_%H:%M:%S)" || true && git push)
-    ;;
+    ui)
+        sh "$ROOT/ui/menu.sh"
+        ;;
 
-  *)
-    cat <<HLP
-Teleport VX CLI
-Usage:
-  vx status        — состояние системы
-  vx version       — версия ОС
-  vx doctor        — диагностика
-  vx net ...       — сетевые утилиты
-  vx ui            — текстовое меню
-  vx ai            — (заглушка) ИИ-модуль
-  vx update        — подтянуть изменения из GitHub
-  vx sync          — закоммитить и запушить изменения
-HLP
-    ;;
+    ""|help|-h|--help)
+        echo "Usage: vx [status|version|doctor|net|menu]"
+        ;;
+
+    *)
+        echo "Unknown command: $1"
+        echo "Try: vx status"
+        exit 1
+        ;;
 esac
