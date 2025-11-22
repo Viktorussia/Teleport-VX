@@ -1,22 +1,20 @@
 #include "task.h"
-
-// Прототипы инициализации
-extern void task_init();
-extern void scheduler_init();
+#include "scheduler.h"
+#include "ipc.h"
+#include "system_space.h"
 
 // Главная точка входа ядра Teleport VX Next
 void vx_kernel_main() {
-    // Инициализация подсистем
+    // 1. Инициализация подсистем ядра
     task_init();
     scheduler_init();
+    ipc_init();
+    system_space_init();
 
-    // Здесь позже:
-    // - создадим system-space
-    // - запустим первые сервисы
-    // - включим основной цикл планировщика
+    // Здесь позже появится создание базовых задач и сервисов
 
     while (1) {
-        // Заглушка главного цикла
-        // В будущем здесь будет вызов scheduler_run()
+        // Основной цикл ядра
+        scheduler_run();
     }
 }
